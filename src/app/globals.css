@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --rayread-bg: #f8f8f0;
+  --rayread-card: rgb(247, 243, 223);
+  --rayread-text: #725d42;
+  --rayread-muted: #9f927d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at top left, rgba(130, 213, 187, 0.26), transparent 34rem),
+    radial-gradient(circle at bottom right, rgba(247, 205, 103, 0.26), transparent 28rem),
+    var(--rayread-bg);
+  color: var(--rayread-text);
+  font-family: Nunito, 'Noto Sans SC', 'Zen Maru Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+textarea {
+  resize: none;
+}
