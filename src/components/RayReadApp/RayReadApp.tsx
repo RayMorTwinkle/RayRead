@@ -2,11 +2,13 @@
 
 import { Cursor, Footer } from 'animal-island-ui';
 import { useAutoPlay } from '@/hooks/useAutoPlay';
+import { useHydrateConfigStore } from '@/hooks/useHydrateConfigStore';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { ControlPanel } from '@/components/ControlPanel/ControlPanel';
 import { ReaderBoard } from '@/components/ReaderBoard/ReaderBoard';
 
 export function RayReadApp() {
+  useHydrateConfigStore();
   useAutoPlay();
   useKeyboardNavigation();
 

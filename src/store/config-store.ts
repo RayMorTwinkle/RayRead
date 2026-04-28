@@ -35,6 +35,7 @@ export const useConfigStore = create<AppConfigState>()(
     {
       name: 'rayread-config',
       storage: createJSONStorage(() => localStorage),
+      skipHydration: true,
       partialize: (state) => ({
         readingSpeed: state.readingSpeed,
         colorPalette: state.colorPalette,
