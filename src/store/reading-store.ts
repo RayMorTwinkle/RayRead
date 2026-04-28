@@ -11,6 +11,7 @@ export interface ReadingState {
   currentIndex: number;
   isPlaying: boolean;
   parseText: (text: string) => void;
+  clearText: () => void;
   nextChunk: () => void;
   prevChunk: () => void;
   togglePlay: () => void;
@@ -32,6 +33,13 @@ export const useReadingStore = create<ReadingState>((set) => ({
       isPlaying: false
     });
   },
+  clearText: () =>
+    set({
+      rawText: '',
+      chunks: [],
+      currentIndex: 0,
+      isPlaying: false
+    }),
   nextChunk: () =>
     set((state) => ({
       currentIndex: Math.min(state.currentIndex + 1, Math.max(state.chunks.length - 1, 0)),

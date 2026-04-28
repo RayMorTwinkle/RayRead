@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, Card, Collapse, Divider, Switch } from 'animal-island-ui';
-import { ChevronLeft, ChevronRight, Gauge, Palette, Play, Pause, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Gauge, Keyboard, Palette, Play, Pause, Sparkles } from 'lucide-react';
 import type { ColorPalette } from '@/store/config-store';
 import { useConfigStore } from '@/store/config-store';
 import { useReadingStore } from '@/store/reading-store';
@@ -28,6 +28,7 @@ export function ControlPanel() {
   const setEnableDopamine = useConfigStore((state) => state.setEnableDopamine);
   const setEnableFocus = useConfigStore((state) => state.setEnableFocus);
   const canRead = chunksLength > 0;
+  const progressPercent = canRead ? Math.round(((currentIndex + 1) / chunksLength) * 100) : 0;
 
   return (
     <aside className="flex w-full flex-col gap-6 lg:w-[280px]">
@@ -50,6 +51,22 @@ export function ControlPanel() {
         </div>
 
         <Divider type="line-teal" />
+
+        <div className="rounded-[24px] bg-[#fffdf2] p-4">
+          <div className="mb-2 flex items-center justify-between text-sm font-black text-bark">
+            <span>阅读进度</span>
+            <span>{progressPercent}%</span>
+          </div>
+          <div className="h-3 overflow-hidden rounded-full bg-[#e7ddc5] shadow-[inset_0_2px_0_rgba(114,93,66,0.16)]">
+            <div
+              className="h-full rounded-full bg-[#19c8b9] transition-all duration-300"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <p className="mt-2 text-xs font-bold text-[#9f927d]">
+            {canRead ? `第 ${currentIndex + 1} 句，共 ${chunksLength} 句` : '粘贴文本后会显示进度'}
+          </p>
+        </div>
 
         <div className="flex gap-3">
           <Button block disabled={!canRead || currentIndex === 0} icon={<ChevronLeft size={18} />} onClick={prevChunk}>
@@ -131,6 +148,14 @@ export function ControlPanel() {
             <span>沉浸高亮</span>
             <Switch checked={enableFocus} checkedChildren="ON" unCheckedChildren="OFF" onChange={setEnableFocus} />
           </label>
+        </div>
+
+        <div className="rounded-[22px] bg-[#e6f9f6] px-4 py-3 text-xs font-black leading-6 text-bark">
+          <p className="mb-1 flex items-center gap-2 text-sm">
+            <Keyboard size={16} /> 快捷键
+          </p>
+          <p>Space / → 下一句</p>
+          <p>← 上一句</p>
         </div>
       </Card>
     </aside>
