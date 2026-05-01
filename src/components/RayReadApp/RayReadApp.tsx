@@ -6,11 +6,17 @@ import { useHydrateConfigStore } from '@/hooks/useHydrateConfigStore';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { ControlPanel } from '@/components/ControlPanel/ControlPanel';
 import { ReaderBoard } from '@/components/ReaderBoard/ReaderBoard';
+import { useConfigStore } from '@/store/config-store';
+import { useReadingStore } from '@/store/reading-store';
 
 export function RayReadApp() {
   useHydrateConfigStore();
   useAutoPlay();
   useKeyboardNavigation();
+  const enableFocus = useConfigStore((state) => state.enableFocus);
+  const focusLevel = useConfigStore((state) => state.focusLevel);
+  const chunksLength = useReadingStore((state) => state.chunks.length);
+  const showSpotlightMask = enableFocus && focusLevel === 'page' && chunksLength > 0;
 
   return (
     <Cursor>
@@ -27,11 +33,14 @@ export function RayReadApp() {
           />
         </div>
         <main className="relative flex min-h-screen w-full justify-center overflow-x-hidden p-4 pb-28 text-bark sm:p-8 sm:pb-32 lg:items-start">
-          <section className="relative z-10 flex w-full max-w-6xl flex-col gap-6 lg:flex-row">
+          <section className="relative flex w-full max-w-6xl flex-col gap-6 lg:flex-row">
             <ReaderBoard />
             <ControlPanel />
           </section>
         </main>
+        {showSpotlightMask && (
+          <div className="pointer-events-none fixed inset-0 z-20 bg-[#2f281f]/35 transition-opacity duration-300" />
+        )}
       </div>
     </Cursor>
   );

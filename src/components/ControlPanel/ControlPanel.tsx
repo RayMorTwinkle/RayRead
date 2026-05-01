@@ -13,7 +13,7 @@ import {
   Settings2,
   Sparkles
 } from 'lucide-react';
-import type { ColorPalette, DopamineLevel, ReadingMode } from '@/store/config-store';
+import type { ColorPalette, DopamineLevel, FocusLevel, ReadingMode } from '@/store/config-store';
 import { useConfigStore } from '@/store/config-store';
 import { useReadingStore } from '@/store/reading-store';
 import { cn } from '@/lib/utils';
@@ -36,6 +36,11 @@ const DOPAMINE_LEVEL_OPTIONS: Array<{ value: DopamineLevel; label: string }> = [
   { value: 'jumpy', label: '跳跃' }
 ];
 
+const FOCUS_LEVEL_OPTIONS: Array<{ value: FocusLevel; label: string }> = [
+  { value: 'sentence', label: '句子' },
+  { value: 'page', label: '全页' }
+];
+
 export function ControlPanel() {
   const chunksLength = useReadingStore((state) => state.chunks.length);
   const currentIndex = useReadingStore((state) => state.currentIndex);
@@ -49,6 +54,7 @@ export function ControlPanel() {
   const enableDopamine = useConfigStore((state) => state.enableDopamine);
   const dopamineLevel = useConfigStore((state) => state.dopamineLevel);
   const enableFocus = useConfigStore((state) => state.enableFocus);
+  const focusLevel = useConfigStore((state) => state.focusLevel);
   const enableSizeVariation = useConfigStore((state) => state.enableSizeVariation);
   const enableBackgroundHighlight = useConfigStore((state) => state.enableBackgroundHighlight);
   const setReadingSpeed = useConfigStore((state) => state.setReadingSpeed);
@@ -57,6 +63,7 @@ export function ControlPanel() {
   const setEnableDopamine = useConfigStore((state) => state.setEnableDopamine);
   const setDopamineLevel = useConfigStore((state) => state.setDopamineLevel);
   const setEnableFocus = useConfigStore((state) => state.setEnableFocus);
+  const setFocusLevel = useConfigStore((state) => state.setFocusLevel);
   const setEnableSizeVariation = useConfigStore((state) => state.setEnableSizeVariation);
   const setEnableBackgroundHighlight = useConfigStore((state) => state.setEnableBackgroundHighlight);
   const canRead = chunksLength > 0;
@@ -234,6 +241,29 @@ export function ControlPanel() {
             <span>沉浸高亮</span>
             <Switch checked={enableFocus} checkedChildren="ON" unCheckedChildren="OFF" onChange={setEnableFocus} />
           </label>
+          {enableFocus && (
+            <div className="grid grid-cols-2 gap-1 rounded-[18px] bg-[#f1ead7] p-1">
+              {FOCUS_LEVEL_OPTIONS.map((option) => {
+                const active = focusLevel === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setFocusLevel(option.value)}
+                    className={cn(
+                      'rounded-[14px] px-2 py-2 text-xs font-black transition-colors',
+                      active
+                        ? 'bg-[#19c8b9] text-white shadow-[0_2px_0_0_#0fa597]'
+                        : 'text-[#7a6a55] hover:bg-white'
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
 
         <Collapse

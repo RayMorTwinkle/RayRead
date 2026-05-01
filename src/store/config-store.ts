@@ -6,6 +6,7 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 export type ColorPalette = 'mid-century' | 'morandi' | 'macaron' | 'ink-wash';
 export type ReadingMode = 'lyrics' | 'document';
 export type DopamineLevel = 'gentle' | 'dopamine' | 'jumpy';
+export type FocusLevel = 'sentence' | 'page';
 
 export interface AppConfigState {
   readingSpeed: number;
@@ -14,6 +15,7 @@ export interface AppConfigState {
   enableDopamine: boolean;
   dopamineLevel: DopamineLevel;
   enableFocus: boolean;
+  focusLevel: FocusLevel;
   enableSizeVariation: boolean;
   enableBackgroundHighlight: boolean;
   hasHydrated: boolean;
@@ -23,6 +25,7 @@ export interface AppConfigState {
   setEnableDopamine: (enabled: boolean) => void;
   setDopamineLevel: (level: DopamineLevel) => void;
   setEnableFocus: (enabled: boolean) => void;
+  setFocusLevel: (level: FocusLevel) => void;
   setEnableSizeVariation: (enabled: boolean) => void;
   setEnableBackgroundHighlight: (enabled: boolean) => void;
   setHasHydrated: (hydrated: boolean) => void;
@@ -37,6 +40,7 @@ export const useConfigStore = create<AppConfigState>()(
       enableDopamine: true,
       dopamineLevel: 'dopamine',
       enableFocus: true,
+      focusLevel: 'sentence',
       enableSizeVariation: false,
       enableBackgroundHighlight: true,
       hasHydrated: false,
@@ -46,6 +50,7 @@ export const useConfigStore = create<AppConfigState>()(
       setEnableDopamine: (enabled) => set({ enableDopamine: enabled }),
       setDopamineLevel: (level) => set({ dopamineLevel: level }),
       setEnableFocus: (enabled) => set({ enableFocus: enabled }),
+      setFocusLevel: (level) => set({ focusLevel: level }),
       setEnableSizeVariation: (enabled) => set({ enableSizeVariation: enabled }),
       setEnableBackgroundHighlight: (enabled) => set({ enableBackgroundHighlight: enabled }),
       setHasHydrated: (hydrated) => set({ hasHydrated: hydrated })
@@ -61,6 +66,7 @@ export const useConfigStore = create<AppConfigState>()(
         enableDopamine: state.enableDopamine,
         dopamineLevel: state.dopamineLevel,
         enableFocus: state.enableFocus,
+        focusLevel: state.focusLevel,
         enableSizeVariation: state.enableSizeVariation,
         enableBackgroundHighlight: state.enableBackgroundHighlight
       }),

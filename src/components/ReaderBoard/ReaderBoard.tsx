@@ -23,6 +23,7 @@ export function ReaderBoard() {
   const enableDopamine = useConfigStore((state) => state.enableDopamine);
   const dopamineLevel = useConfigStore((state) => state.dopamineLevel);
   const enableFocus = useConfigStore((state) => state.enableFocus);
+  const focusLevel = useConfigStore((state) => state.focusLevel);
   const enableSizeVariation = useConfigStore((state) => state.enableSizeVariation);
   const enableBackgroundHighlight = useConfigStore((state) => state.enableBackgroundHighlight);
   const activeRefs = useRef<Array<HTMLElement | null>>([]);
@@ -107,6 +108,7 @@ export function ReaderBoard() {
                       chunk={chunk}
                       isActive={index === currentIndex}
                       enableFocus={enableFocus}
+                      focusLevel={focusLevel}
                       displayMode="inline"
                       className={cn(
                         'inline rounded-[8px] px-1 py-0.5 align-baseline',
@@ -144,6 +146,7 @@ export function ReaderBoard() {
                     chunk={chunk}
                     isActive={index === currentIndex}
                     enableFocus={enableFocus}
+                    focusLevel={focusLevel}
                     className={cn(
                       visualStyle.sizeClass,
                       visualStyle.weightClass,
