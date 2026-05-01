@@ -25,10 +25,24 @@ RayRead 是一个面向中文阅读场景的专注阅读工具。它会把长文
 - animal-island-ui
 - lucide-react
 
+## 环境准备
+
+本项目使用 **npm** 作为包管理器（已包含 `package-lock.json`），请确保你的环境满足以下条件：
+
+- **Node.js**：18.18 或更高版本（Next.js 15 要求）
+- **包管理器**：npm（内置在 Node.js 中）
+
+> 提示：项目不兼容 pnpm/yarn 的 lock 文件。如果你在全新环境中使用 pnpm，请先删除 `package-lock.json` 和 `node_modules`，再运行 `pnpm install` 重新生成 lock 文件。否则请继续使用 npm。
+
 ## 快速开始
 
+在干净的环境中，执行以下命令即可启动开发：
+
 ```bash
+# 1. 安装依赖
 npm install
+
+# 2. 启动开发服务器
 npm run dev
 ```
 
