@@ -19,9 +19,13 @@ export function ReaderBoard() {
   const clearText = useReadingStore((state) => state.clearText);
   const rawText = useReadingStore((state) => state.rawText);
   const colorPalette = useConfigStore((state) => state.colorPalette);
+  const readingMode = useConfigStore((state) => state.readingMode);
   const enableDopamine = useConfigStore((state) => state.enableDopamine);
+  const dopamineLevel = useConfigStore((state) => state.dopamineLevel);
   const enableFocus = useConfigStore((state) => state.enableFocus);
-  const activeRefs = useRef<Array<HTMLParagraphElement | null>>([]);
+  const enableSizeVariation = useConfigStore((state) => state.enableSizeVariation);
+  const enableBackgroundHighlight = useConfigStore((state) => state.enableBackgroundHighlight);
+  const activeRefs = useRef<Array<HTMLElement | null>>([]);
 
   useEffect(() => {
     activeRefs.current[currentIndex]?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -80,30 +84,79 @@ export function ReaderBoard() {
 
       <div className="mt-5 min-h-0 flex-1 overflow-y-auto rounded-[30px] bg-[#fffdf2]/70 px-3 py-4 scroll-smooth">
         {chunks.length > 0 ? (
-          <div className="mx-auto flex max-w-3xl flex-col gap-3 py-[30vh]">
-            {chunks.map((chunk, index) => {
-              const visualStyle = getChunkVisualStyle(chunk.text, index, colorPalette, enableDopamine);
+          readingMode === 'document' ? (
+            <div className="mx-auto max-w-3xl px-3 py-10 lg:px-6">
+              <div className="rounded-[28px] bg-[#fffdf2] px-5 py-6 text-lg leading-[2.1] text-bark shadow-[inset_0_2px_0_rgba(255,255,255,0.75)] lg:px-8 lg:py-8 lg:text-[1.15rem]">
+                {chunks.map((chunk, index) => {
+                  const visualStyle = getChunkVisualStyle(
+                    chunk.text,
+                    index,
+                    colorPalette,
+                    enableDopamine,
+                    dopamineLevel,
+                    enableSizeVariation,
+                    enableBackgroundHighlight
+                  );
 
-              return (
-                <ChunkItem
-                  key={chunk.id}
-                  ref={(node) => {
-                    activeRefs.current[index] = node;
-                  }}
-                  chunk={chunk}
-                  isActive={index === currentIndex}
-                  enableFocus={enableFocus}
-                  className={cn(
-                    visualStyle.sizeClass,
-                    visualStyle.weightClass,
-                    visualStyle.underlineClass
-                  )}
-                  backgroundColor={visualStyle.backgroundColor}
-                  textColor={visualStyle.textColor}
-                />
-              );
-            })}
-          </div>
+                  return (
+                    <ChunkItem
+                      key={chunk.id}
+                      ref={(node) => {
+                        activeRefs.current[index] = node;
+                      }}
+                      chunk={chunk}
+                      isActive={index === currentIndex}
+                      enableFocus={enableFocus}
+                      displayMode="inline"
+                      className={cn(
+                        'inline rounded-[8px] px-1 py-0.5 align-baseline',
+                        visualStyle.sizeClass,
+                        visualStyle.weightClass,
+                        visualStyle.italicClass,
+                        visualStyle.underlineClass
+                      )}
+                      backgroundColor={visualStyle.backgroundColor}
+                      textColor={visualStyle.textColor}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto flex max-w-3xl flex-col gap-3 py-[30vh]">
+              {chunks.map((chunk, index) => {
+                const visualStyle = getChunkVisualStyle(
+                  chunk.text,
+                  index,
+                  colorPalette,
+                  enableDopamine,
+                  dopamineLevel,
+                  enableSizeVariation,
+                  enableBackgroundHighlight
+                );
+
+                return (
+                  <ChunkItem
+                    key={chunk.id}
+                    ref={(node) => {
+                      activeRefs.current[index] = node;
+                    }}
+                    chunk={chunk}
+                    isActive={index === currentIndex}
+                    enableFocus={enableFocus}
+                    className={cn(
+                      visualStyle.sizeClass,
+                      visualStyle.weightClass,
+                      visualStyle.italicClass,
+                      visualStyle.underlineClass
+                    )}
+                    backgroundColor={visualStyle.backgroundColor}
+                    textColor={visualStyle.textColor}
+                  />
+                );
+              })}
+            </div>
+          )
         ) : (
           <div className="flex h-full min-h-52 items-center justify-center text-center text-[#9f927d]">
             <Typewriter speed={36}>小岛还没有文字。贴一段文章、笔记或小说片段进来吧。</Typewriter>

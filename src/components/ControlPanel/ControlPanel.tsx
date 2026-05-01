@@ -1,15 +1,39 @@
 'use client';
 
 import { Button, Card, Collapse, Divider, Switch } from 'animal-island-ui';
-import { ChevronLeft, ChevronRight, Gauge, Keyboard, Palette, Play, Pause, Sparkles } from 'lucide-react';
-import type { ColorPalette } from '@/store/config-store';
+import {
+  AlignLeft,
+  ChevronLeft,
+  ChevronRight,
+  Gauge,
+  Keyboard,
+  Palette,
+  Play,
+  Pause,
+  Settings2,
+  Sparkles
+} from 'lucide-react';
+import type { ColorPalette, DopamineLevel, ReadingMode } from '@/store/config-store';
 import { useConfigStore } from '@/store/config-store';
 import { useReadingStore } from '@/store/reading-store';
+import { cn } from '@/lib/utils';
 
 const PALETTE_OPTIONS: Array<{ value: ColorPalette; label: string }> = [
-  { value: 'morandi', label: 'Morandi' },
   { value: 'macaron', label: 'Macaron' },
-  { value: 'high-contrast', label: 'High Contrast' }
+  { value: 'mid-century', label: 'Mid-Century' },
+  { value: 'morandi', label: 'Morandi' },
+  { value: 'ink-wash', label: 'Ink Wash' }
+];
+
+const READING_MODE_OPTIONS: Array<{ value: ReadingMode; label: string; description: string }> = [
+  { value: 'lyrics', label: '歌词模式', description: '一句一行，适合追焦阅读' },
+  { value: 'document', label: '文稿模式', description: '保留文段排版，逐句高亮' }
+];
+
+const DOPAMINE_LEVEL_OPTIONS: Array<{ value: DopamineLevel; label: string }> = [
+  { value: 'gentle', label: '温和' },
+  { value: 'dopamine', label: '多巴胺' },
+  { value: 'jumpy', label: '跳跃' }
 ];
 
 export function ControlPanel() {
@@ -21,30 +45,40 @@ export function ControlPanel() {
   const prevChunk = useReadingStore((state) => state.prevChunk);
   const readingSpeed = useConfigStore((state) => state.readingSpeed);
   const colorPalette = useConfigStore((state) => state.colorPalette);
+  const readingMode = useConfigStore((state) => state.readingMode);
   const enableDopamine = useConfigStore((state) => state.enableDopamine);
+  const dopamineLevel = useConfigStore((state) => state.dopamineLevel);
   const enableFocus = useConfigStore((state) => state.enableFocus);
+  const enableSizeVariation = useConfigStore((state) => state.enableSizeVariation);
+  const enableBackgroundHighlight = useConfigStore((state) => state.enableBackgroundHighlight);
   const setReadingSpeed = useConfigStore((state) => state.setReadingSpeed);
   const setTheme = useConfigStore((state) => state.setTheme);
+  const setReadingMode = useConfigStore((state) => state.setReadingMode);
   const setEnableDopamine = useConfigStore((state) => state.setEnableDopamine);
+  const setDopamineLevel = useConfigStore((state) => state.setDopamineLevel);
   const setEnableFocus = useConfigStore((state) => state.setEnableFocus);
+  const setEnableSizeVariation = useConfigStore((state) => state.setEnableSizeVariation);
+  const setEnableBackgroundHighlight = useConfigStore((state) => state.setEnableBackgroundHighlight);
   const canRead = chunksLength > 0;
   const progressPercent = canRead ? Math.round(((currentIndex + 1) / chunksLength) * 100) : 0;
 
   return (
-    <aside className="flex w-full flex-col gap-6 lg:w-[280px]">
-      <Button
-        block
-        className="min-h-[100px] text-xl font-black"
+    <aside className="flex min-h-0 w-full flex-col gap-6 lg:w-[280px]">
+      <button
+        type="button"
         disabled={!canRead}
-        icon={isPlaying ? <Pause size={24} /> : <Play size={24} />}
-        size="large"
-        type="primary"
         onClick={togglePlay}
+        className={cn(
+          'flex w-full items-center justify-center gap-2 rounded-[24px] border-[3px] border-[#0fa597] bg-[#19c8b9] px-6 py-4 text-lg font-black text-white shadow-[0_4px_0_0_#0fa597] transition active:translate-y-[2px] active:shadow-[0_2px_0_0_#0fa597]',
+          'hover:bg-[#22d4c5]',
+          'disabled:cursor-not-allowed disabled:border-[#c4b89e] disabled:bg-[#dcd2bc] disabled:text-[#8c8170] disabled:shadow-[0_4px_0_0_#c4b89e]'
+        )}
       >
-        {isPlaying ? '暂停巡航' : '开始阅读'}
-      </Button>
+        {isPlaying ? <Pause size={22} /> : <Play size={22} />}
+        <span>{isPlaying ? '暂停巡航' : '开始阅读'}</span>
+      </button>
 
-      <Card className="flex flex-1 flex-col gap-5 p-6" color="default">
+      <Card className="flex flex-col gap-5 p-6" color="default">
         <div>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-[#9f927d]">Other Options</p>
           <h2 className="mt-1 text-xl font-black text-bark">参数调节</h2>
@@ -82,8 +116,36 @@ export function ControlPanel() {
           </Button>
         </div>
 
+        <div className="grid gap-2 rounded-[24px] bg-[#fffdf2] p-4">
+          <div className="flex items-center gap-2 text-sm font-black text-bark">
+            <AlignLeft size={18} /> 阅读模式
+          </div>
+          <div className="grid gap-2">
+            {READING_MODE_OPTIONS.map((option) => (
+              <label
+                key={option.value}
+                className="flex cursor-pointer items-start justify-between gap-3 rounded-[18px] border-[2px] border-transparent bg-white px-4 py-3 text-bark transition-colors"
+              >
+                <div>
+                  <p className="text-sm font-black">{option.label}</p>
+                  <p className="text-xs font-bold text-[#9f927d]">{option.description}</p>
+                </div>
+                <input
+                  checked={readingMode === option.value}
+                  className="mt-1 h-4 w-4 accent-[#19c8b9]"
+                  name="readingMode"
+                  type="radio"
+                  value={option.value}
+                  onChange={() => setReadingMode(option.value)}
+                />
+              </label>
+            ))}
+          </div>
+        </div>
+
         <Collapse
           defaultExpanded
+          className="rayread-collapse"
           question={
             <span className="flex items-center gap-2 font-black">
               <Gauge size={18} /> 阅读速度
@@ -110,6 +172,7 @@ export function ControlPanel() {
 
         <Collapse
           defaultExpanded
+          className="rayread-collapse"
           question={
             <span className="flex items-center gap-2 font-black">
               <Palette size={18} /> 色彩池
@@ -137,18 +200,78 @@ export function ControlPanel() {
           }
         />
 
-        <div className="mt-auto grid gap-4 rounded-[24px] bg-[#fffdf2] p-4">
+        <div className="grid gap-4 rounded-[24px] bg-[#fffdf2] p-4">
           <label className="flex items-center justify-between gap-4 text-sm font-black text-bark">
             <span className="flex items-center gap-2">
               <Sparkles size={18} /> 多巴胺样式
             </span>
             <Switch checked={enableDopamine} checkedChildren="ON" unCheckedChildren="OFF" onChange={setEnableDopamine} />
           </label>
+          {enableDopamine && (
+            <div className="grid grid-cols-3 gap-1 rounded-[18px] bg-[#f1ead7] p-1">
+              {DOPAMINE_LEVEL_OPTIONS.map((option) => {
+                const active = dopamineLevel === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setDopamineLevel(option.value)}
+                    className={cn(
+                      'rounded-[14px] px-2 py-2 text-xs font-black transition-colors',
+                      active
+                        ? 'bg-[#19c8b9] text-white shadow-[0_2px_0_0_#0fa597]'
+                        : 'text-[#7a6a55] hover:bg-white'
+                    )}
+                  >
+                    {option.label}
+                  </button>
+                );
+              })}
+            </div>
+          )}
           <label className="flex items-center justify-between gap-4 text-sm font-black text-bark">
             <span>沉浸高亮</span>
             <Switch checked={enableFocus} checkedChildren="ON" unCheckedChildren="OFF" onChange={setEnableFocus} />
           </label>
         </div>
+
+        <Collapse
+          className="rayread-collapse"
+          question={
+            <span className="flex items-center gap-2 font-black">
+              <Settings2 size={18} /> 高级设置
+            </span>
+          }
+          answer={
+            <div className="grid gap-3 pt-3">
+              <label className="flex items-center justify-between gap-4 rounded-[18px] bg-[#fffdf2] px-4 py-3 text-sm font-black text-bark">
+                <span>
+                  <span className="block">字号变化</span>
+                  <span className="mt-0.5 block text-xs font-bold text-[#9f927d]">句子字号轻微起伏，更生动但易疲劳</span>
+                </span>
+                <Switch
+                  checked={enableSizeVariation}
+                  checkedChildren="ON"
+                  unCheckedChildren="OFF"
+                  onChange={setEnableSizeVariation}
+                />
+              </label>
+              <label className="flex items-center justify-between gap-4 rounded-[18px] bg-[#fffdf2] px-4 py-3 text-sm font-black text-bark">
+                <span>
+                  <span className="block">句子背景色</span>
+                  <span className="mt-0.5 block text-xs font-bold text-[#9f927d]">关闭后只用文字色变化，背景全透明</span>
+                </span>
+                <Switch
+                  checked={enableBackgroundHighlight}
+                  checkedChildren="ON"
+                  unCheckedChildren="OFF"
+                  onChange={setEnableBackgroundHighlight}
+                />
+              </label>
+            </div>
+          }
+        />
 
         <div className="rounded-[22px] bg-[#e6f9f6] px-4 py-3 text-xs font-black leading-6 text-bark">
           <p className="mb-1 flex items-center gap-2 text-sm">

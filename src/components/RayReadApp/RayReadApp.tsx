@@ -14,15 +14,25 @@ export function RayReadApp() {
 
   return (
     <Cursor>
-      <main className="relative flex h-screen w-full items-center justify-center overflow-hidden p-4 text-bark sm:p-8">
+      <div className="relative min-h-screen w-full">
         <div className="pointer-events-none absolute inset-x-0 bottom-0 opacity-80">
-          <Footer type="sea" />
+          <Footer 
+            type="sea" 
+            className="w-full" 
+            style={{ 
+              backgroundSize: 'contain',
+              backgroundRepeat: 'repeat-x',
+              backgroundPosition: 'bottom center'
+            }} 
+          />
         </div>
-        <section className="relative z-10 flex h-[85vh] w-full max-w-6xl flex-col gap-6 lg:flex-row">
-          <ReaderBoard />
-          <ControlPanel />
-        </section>
-      </main>
+        <main className="relative flex min-h-screen w-full justify-center overflow-x-hidden p-4 pb-28 text-bark sm:p-8 sm:pb-32 lg:items-start">
+          <section className="relative z-10 flex w-full max-w-6xl flex-col gap-6 lg:flex-row">
+            <ReaderBoard />
+            <ControlPanel />
+          </section>
+        </main>
+      </div>
     </Cursor>
   );
 }

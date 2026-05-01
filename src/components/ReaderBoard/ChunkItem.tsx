@@ -9,17 +9,18 @@ interface ChunkItemProps {
   chunk: ParsedChunk;
   isActive: boolean;
   enableFocus: boolean;
+  displayMode?: 'block' | 'inline';
   className?: string;
   backgroundColor?: string;
   textColor?: string;
 }
 
-export const ChunkItem = forwardRef<HTMLParagraphElement, ChunkItemProps>(
-  ({ chunk, isActive, enableFocus, className, backgroundColor, textColor }, ref) => {
+export const ChunkItem = forwardRef<HTMLSpanElement, ChunkItemProps>(
+  ({ chunk, isActive, enableFocus, displayMode = 'block', className, backgroundColor, textColor }, ref) => {
     const muted = enableFocus && !isActive;
 
     return (
-      <motion.p
+      <motion.span
         ref={ref}
         layout
         animate={{
@@ -28,14 +29,16 @@ export const ChunkItem = forwardRef<HTMLParagraphElement, ChunkItemProps>(
         }}
         transition={{ duration: 0.24, ease: 'easeOut' }}
         className={cn(
-          'origin-center rounded-[26px] px-4 py-3 leading-[1.9] tracking-wide text-bark transition-colors',
+          displayMode === 'inline'
+            ? 'origin-center whitespace-pre-wrap break-words text-bark transition-colors'
+            : 'block origin-center rounded-[26px] px-4 py-3 leading-[1.9] tracking-wide text-bark transition-colors',
           isActive ? 'bg-[#fff7d6]' : '',
           className
         )}
         style={{ backgroundColor: backgroundColor ?? undefined, color: textColor ?? undefined }}
       >
-        {chunk.text}
-      </motion.p>
+        {displayMode === 'inline' ? `${chunk.text} ` : chunk.text}
+      </motion.span>
     );
   }
 );
