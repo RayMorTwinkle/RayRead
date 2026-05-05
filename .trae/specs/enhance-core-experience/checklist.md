@@ -1,0 +1,23 @@
+- [x] ParsedChunk.endType 字段在 parser.ts 中正确生成，三种类型判定逻辑正确
+- [x] useAutoPlay 中 clause 结尾句子停留时长约为 sentence 结尾的 60%，paragraph 结尾约为 140%
+- [x] 刷新页面后 rawText 和 currentIndex 自动恢复，chunks 重新 parse 生成
+- [x] 清空文本后刷新页面不恢复旧数据
+- [x] 阅读进度持久化不引发 SSR/CSR hydration mismatch
+- [x] 文件选择器可选择 .txt 文件并正确导入内容
+- [x] 拖拽 .txt 文件到阅读区域可导入，拖拽时有视觉反馈
+- [x] 非 .txt 文件显示不支持提示
+- [x] URL 输入框验证 http/https 协议
+- [x] URL 导入成功后内容自动填入阅读区域
+- [x] URL 导入失败显示友好错误提示
+- [x] URL 导入过程中显示 loading 状态
+- [x] 阅读统计展示阅读时长（mm:ss 格式）
+- [x] 阅读统计展示已读句数/总句数
+- [x] 阅读统计展示预估剩余时间
+- [x] 播放时计时累加，暂停时停止
+- [x] 清空文本时统计数据重置
+- [x] 新增 UI 元素遵循 animal-island-ui 设计规范（pill 圆角、3D 阴影、暖色系、Nunito 字体）
+- [x] 新增代码无 Math.random() 调用
+- [x] npm run lint 通过
+- [x] npm run typecheck 通过
+- [x] npm run build 通过
+- [x] AGENTS.md 和 readme.md 已更新

@@ -13,6 +13,10 @@ RayRead 是一个面向中文阅读场景的专注阅读工具。它会把长文
 - **可调色彩池**：内置 Macaron、Mid-Century、Morandi、Ink Wash 四套浅背景 + 深文字配色。
 - **高级设置**：可关闭字号变化或句子背景色，让阅读体验更稳定。
 - **隐私友好**：阅读文本不持久化，偏好配置仅保存在浏览器 Local Storage。
+- **阅读进度保存**：刷新页面后自动恢复阅读位置，无需重新粘贴文本。
+- **语义感知巡航**：逗号结尾分句停顿更短，句号结尾标准停顿，段落结尾停顿更长。
+- **多方式导入**：支持粘贴 URL 导入网页正文、拖拽或选择 TXT 文件导入。
+- **阅读统计**：实时显示阅读时长、已读句数和预估剩余时间。
 
 ## 技术栈
 
@@ -64,11 +68,12 @@ npm run typecheck  # 运行 TypeScript 类型检查
 
 ## 使用方式
 
-1. 在左侧输入框粘贴文章、笔记或小说片段。
+1. 在左侧输入框粘贴文章、笔记或小说片段；也可以粘贴 URL 导入网页正文，或拖拽/选择 TXT 文件。
 2. RayRead 会自动把文本切分为句子和短分句。
 3. 点击「开始阅读」或按 `Space` 开始逐句巡航。
 4. 使用 `←` / `→` 手动切换句子。
 5. 在右侧控制面板调整阅读速度、阅读模式、色彩池和多巴胺强度。
+6. 刷新页面后阅读进度自动恢复。
 
 ## 阅读模式
 
@@ -88,17 +93,20 @@ npm run typecheck  # 运行 TypeScript 类型检查
 | 沉浸高亮 | 开启 | 弱化非当前句，突出当前句 |
 | 字号变化 | 关闭 | 高级设置，开启后句子字号轻微变化 |
 | 句子背景色 | 开启 | 高级设置，关闭后只保留文字颜色变化 |
+| 阅读进度保存 | 开启 | 刷新页面后自动恢复阅读位置 |
 
 ## 项目结构
 
 ```text
 src/
-  app/                         # Next.js App Router 入口与全局样式
+  app/
+    api/fetch-url/             # URL 代理抓取 API 路由
+    ...                        # Next.js App Router 入口与全局样式
   components/
     RayReadApp/                # 顶层应用容器
     ReaderBoard/               # 文本输入与阅读区域
     ControlPanel/              # 阅读控制面板
-  hooks/                       # 自动巡航、水合、键盘导航
+  hooks/                       # 自动巡航、水合、键盘导航、阅读统计
   lib/                         # 文本解析、样式生成、工具函数
   store/                       # Zustand 阅读状态和配置状态
 docs/
@@ -113,6 +121,9 @@ docs/
 - `src/store/config-store.ts`：保存阅读偏好，并通过 Zustand persist 写入 Local Storage。
 - `src/hooks/useAutoPlay.ts`：根据当前句长度和阅读速度自动翻句。
 - `src/hooks/useKeyboardNavigation.ts`：全局接管 `Space`、`←`、`→`，实现稳定键盘阅读。
+- `src/app/api/fetch-url/route.ts`：服务端代理抓取 URL 内容，提取正文并去除 HTML 标签。
+- `src/hooks/useReadingStats.ts`：追踪阅读时长、已读句数和预估剩余时间。
+- `src/hooks/useHydrateReadingStore.ts`：在客户端触发阅读状态水合，恢复阅读进度。
 
 ## 设计原则
 

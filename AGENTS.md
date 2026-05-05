@@ -83,6 +83,10 @@ npm run typecheck  # 使用 tsc --noEmit 执行类型检查
 15. **页面滚动优先于局部滚动**：当前布局已调整为整页自然纵向滚动，避免右侧参数展开后顶部主按钮不可达的问题。
 16. **小模块 + 自定义 Hook 约束大组件膨胀**：复杂行为通过 `useAutoPlay`、`useKeyboardNavigation`、`useHydrateConfigStore` 抽离，保留组件树可读性。
 17. **字号用任意值类避免 Tailwind 预设 line-height**：`text-[1rem/1.1rem/1.25rem]` 配合 `leading-[inherit]` 继承父容器行距，防止文稿模式下字号变化撑爆排版。
+18. **阅读进度持久化与配置持久化采用相同策略**：`reading-store` 使用 `zustand/persist` + `skipHydration: true`，只持久化 `rawText` 和 `currentIndex`，chunks 在恢复时重新 parse。`onRehydrateStorage` 回调中调用 `restoreReading` 重建 chunks 并恢复 currentIndex，避免 hydration mismatch。
+19. **语义感知巡航节奏**：`useAutoPlay` 根据 `ParsedChunk.endType`（sentence/clause/paragraph）乘以不同系数（1.0/0.6/1.4），逗号结尾分句停顿更短，段落结尾停顿更长。
+20. **URL 导入通过服务端代理**：`/api/fetch-url` 路由在服务端 fetch 目标页面并提取正文，避免客户端跨域限制。优先提取 `<article>` 标签，回退到 `<body>`。
+21. **阅读统计不持久化**：`useReadingStats` 追踪的阅读时长和已读句数仅在当前会话有效，清空文本时重置。
 
 ## 用户流程
 
@@ -93,7 +97,9 @@ npm run typecheck  # 使用 tsc --noEmit 执行类型检查
 ## 文件地图
 
 ### API 路由
-当前未发现 API 路由。
+| 路径 | 文件 | 说明 |
+|------|------|------|
+| `/api/fetch-url` | `src/app/api/fetch-url/route.ts` | URL 代理抓取，接收 url 参数，返回提取的纯文本。 |
 
 ### 页面路由
 | 路径 | 文件 | 说明 |
@@ -114,11 +120,13 @@ npm run typecheck  # 使用 tsc --noEmit 执行类型检查
 | `src/hooks/useAutoPlay.ts` | 根据当前句长度和 `readingSpeed` 自动推进到下一句，句末自动停止播放。 |
 | `src/hooks/useHydrateConfigStore.ts` | 在客户端触发 `useConfigStore.persist.rehydrate()`。 |
 | `src/hooks/useKeyboardNavigation.ts` | 注册全局键盘事件，实现空格/方向键翻句，阻止默认滚动，对非输入控件执行 `blur()`。 |
+| `src/hooks/useHydrateReadingStore.ts` | 在客户端触发 `useReadingStore.persist.rehydrate()`。 |
+| `src/hooks/useReadingStats.ts` | 追踪阅读时长、已读句数、预估剩余时间，仅在当前会话有效。 |
 
 ### 状态管理
 | 文件 | 作用 |
 |------|------|
-| `src/store/reading-store.ts` | 阅读业务状态：原始文本、切分结果、当前索引、播放状态及相关操作。无持久化。 |
+| `src/store/reading-store.ts` | 阅读业务状态：原始文本、切分结果、当前索引、播放状态及相关操作。支持 `zustand/persist` 持久化 `rawText` 和 `currentIndex` 到 Local Storage，chunks 在恢复时重新 parse。`hasHydrated` 为内部水合标记，不持久化。 |
 | `src/store/config-store.ts` | 用户偏好配置：速度、色彩池、阅读模式、多巴胺开关与档位、字号变化、背景高亮、聚焦模式，支持 `zustand/persist` 持久化到 Local Storage。`hasHydrated` 为内部水合标记，不持久化。 |
 
 ### 工具文件
@@ -147,13 +155,14 @@ npm run typecheck  # 使用 tsc --noEmit 执行类型检查
 
 | 类型 | 说明 | 关键字段 |
 |------|------|---------|
-| `ParsedChunk` | 分句后的阅读单元 | `id`（`hash-${index}` 十六进制）, `text`, `length` |
-| `ReadingState` | 阅读状态机 | `rawText`, `chunks`, `currentIndex`, `isPlaying` |
+| `ParsedChunk` | 分句后的阅读单元 | `id`（`hash-${index}` 十六进制）, `text`, `length`, `endType`（`'sentence' \| 'clause' \| 'paragraph'`） |
+| `ReadingState` | 阅读状态机 | `rawText`, `chunks`, `currentIndex`, `isPlaying`, `hasHydrated`（内部水合标记，不持久化）, `restoreReading`（恢复阅读进度） |
 | `AppConfigState` | 配置偏好（部分持久化） | `readingSpeed`（默认 10）, `colorPalette`（默认 `'macaron'`）, `readingMode`（默认 `'lyrics'`）, `enableDopamine`（默认 `true`）, `dopamineLevel`（默认 `'dopamine'`）, `enableFocus`（默认 `true`）, `enableSizeVariation`（默认 `false`）, `enableBackgroundHighlight`（默认 `true`）, `hasHydrated`（内部水合标记，不持久化） |
 | `ColorPalette` | 色彩池类型 | `'mid-century' \| 'morandi' \| 'macaron' \| 'ink-wash'` |
 | `ReadingMode` | 阅读模式类型 | `'lyrics' \| 'document'` |
 | `DopamineLevel` | 多巴胺强度档位 | `'gentle' \| 'dopamine' \| 'jumpy'` |
 | `ChunkVisualStyle` | 句子视觉样式结果 | `sizeClass`, `weightClass`, `italicClass`, `underlineClass`, `backgroundColor`, `textColor` |
+| `ReadingStats` | 阅读统计数据 | `readingTimeSeconds`, `readSentenceCount`, `totalSentenceCount`, `estimatedRemainingSeconds` |
 
 ## 特性系统
 
@@ -208,6 +217,39 @@ npm run typecheck  # 使用 tsc --noEmit 执行类型检查
 | 沉浸高亮 | `enableFocus` | `true` | 非活动句 `opacity: 0.3`，活动句 `scale: 1.05` |
 | 字号变化 | `enableSizeVariation` | `false` | 开启后字号按档位权重随机变化 |
 | 句子背景色 | `enableBackgroundHighlight` | `true` | 关闭后只用文字色变化，背景全透明 |
+
+### 语义感知巡航节奏
+
+自动巡航根据句子末尾标点类型调整停留时长：
+
+| endType | 标点类型 | 停顿系数 | 说明 |
+|---------|---------|---------|------|
+| `sentence` | `。！？.!?` | 1.0 | 标准停顿 |
+| `clause` | `，、；,;` | 0.6 | 分句间短停顿 |
+| `paragraph` | 段落结尾 | 1.4 | 段落间长停顿 |
+
+基础时长公式不变：`Math.max(700, (chunk.text.length / readingSpeed) * 1000)`。
+最终停留时长 = 基础时长 × 停顿系数。
+
+### 阅读进度保存
+
+- 持久化字段：`rawText`、`currentIndex`
+- 不持久化：`chunks`（恢复时重新 parse）、`isPlaying`（刷新后不自动播放）、`hasHydrated`
+- 恢复逻辑：rehydrate 后若 rawText 非空，调用 `restoreReading` 重建 chunks 并恢复 currentIndex（带边界保护）
+- Store name：`rayread-reading`
+- 使用 `skipHydration: true` + 手动 `rehydrate()` 避免 hydration mismatch
+
+### 内容导入
+
+- **文件导入**：支持通过文件选择器或拖拽导入 `.txt` 文件，FileReader 读取内容后调用 `parseText()`
+- **URL 导入**：通过 `/api/fetch-url` 服务端代理抓取网页正文，优先提取 `<article>` 标签，回退到 `<body>`，去除 HTML 标签后返回纯文本
+
+### 阅读统计
+
+- 阅读时长：isPlaying 为 true 时每秒累加，暂停时停止
+- 已读句数：取 currentIndex + 1 的历史最大值，只增不减
+- 预估剩余时间：根据未读句子总字符数和 readingSpeed 计算
+- 统计数据不持久化，清空文本时重置
 
 ## 常见操作速查
 
@@ -300,6 +342,18 @@ npm run typecheck  # 使用 tsc --noEmit 执行类型检查
 **修复**：在 `useKeyboardNavigation` 中，对导航键调用 `event.preventDefault()` 后，再对 `event.target` 执行 `blur()`，把焦点从控件上移除。
 **教训**：全局键盘监听要同时处理默认行为和焦点管理。
 
+### 8. Reading Store 持久化需要与 Config Store 使用相同的水合策略
+**现象**：reading store 直接使用 `zustand/persist` 自动水合会导致 SSR/CSR 不一致。
+**根因**：与 config store 相同，浏览器 `localStorage` 只在客户端可用。
+**修复**：使用 `skipHydration: true` + `useHydrateReadingStore()` 手动 `rehydrate()`，`hasHydrated` 不放入 `partialize`。
+**教训**：项目中所有带持久化的 Zustand store 都必须使用相同的水合策略。
+
+### 9. URL 导入必须在服务端代理执行
+**现象**：客户端直接 fetch 外部 URL 会被 CORS 策略阻止。
+**根因**：浏览器同源策略限制跨域请求。
+**修复**：新增 `/api/fetch-url` API 路由在服务端执行 fetch，客户端只调用同源 API。
+**教训**：需要访问外部资源的操作应通过 Next.js API Routes 在服务端执行。
+
 ## 编码约定
 
 - 命名规范：组件使用 PascalCase 文件名和导出名，如 `ReaderBoard.tsx`；Hook 使用 `useXxx`；工具函数和状态字段使用 camelCase。
@@ -326,3 +380,5 @@ npm run typecheck  # 使用 tsc --noEmit 执行类型检查
 8. **是否修改了影响 UI 的随机逻辑？** → 确保仍使用 `hashString`/`seededPercent` 等确定性方法，不能用 `Math.random()`。
 9. **是否改了字号类？** → 确认仍使用任意值类 `text-[...rem] leading-[inherit]`，不能用 `text-lg`/`text-xl` 等预设类。
 10. **是否需要更新文档？** → 如新增阅读模式、配置项或关键交互，更新 `AGENTS.md`、`readme.md` 中对应说明。
+11. **是否修改了阅读进度持久化字段？** → 检查 `src/store/reading-store.ts` 的 `partialize` 是否同步更新（内部状态如 `hasHydrated` 不要放入）。
+12. **是否修改了 API 路由？** → 确认 `/api/fetch-url` 的 URL 验证和超时设置合理。

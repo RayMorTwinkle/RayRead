@@ -3,6 +3,7 @@
 import { Button, Card, Collapse, Divider, Switch } from 'animal-island-ui';
 import {
   AlignLeft,
+  BarChart3,
   ChevronLeft,
   ChevronRight,
   Gauge,
@@ -16,6 +17,7 @@ import {
 import type { ColorPalette, DopamineLevel, FocusLevel, ReadingMode } from '@/store/config-store';
 import { useConfigStore } from '@/store/config-store';
 import { useReadingStore } from '@/store/reading-store';
+import { useReadingStats } from '@/hooks/useReadingStats';
 import { cn } from '@/lib/utils';
 
 const PALETTE_OPTIONS: Array<{ value: ColorPalette; label: string }> = [
@@ -40,6 +42,12 @@ const FOCUS_LEVEL_OPTIONS: Array<{ value: FocusLevel; label: string }> = [
   { value: 'sentence', label: '句子' },
   { value: 'page', label: '全页' }
 ];
+
+function formatTime(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
 
 export function ControlPanel() {
   const chunksLength = useReadingStore((state) => state.chunks.length);
@@ -68,6 +76,7 @@ export function ControlPanel() {
   const setEnableBackgroundHighlight = useConfigStore((state) => state.setEnableBackgroundHighlight);
   const canRead = chunksLength > 0;
   const progressPercent = canRead ? Math.round(((currentIndex + 1) / chunksLength) * 100) : 0;
+  const stats = useReadingStats();
 
   return (
     <aside className="flex min-h-0 w-full flex-col gap-6 lg:w-[280px]">
@@ -108,6 +117,28 @@ export function ControlPanel() {
             {canRead ? `第 ${currentIndex + 1} 句，共 ${chunksLength} 句` : '粘贴文本后会显示进度'}
           </p>
         </div>
+
+        {stats.totalSentenceCount > 0 && (
+          <div className="rounded-[24px] bg-[#fffdf2] p-4">
+            <div className="mb-2 flex items-center gap-2 text-sm font-black text-bark">
+              <BarChart3 size={16} /> 阅读统计
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center">
+              <div className="rounded-[18px] bg-white px-2 py-2">
+                <p className="text-lg font-black text-bark">{formatTime(stats.readingTimeSeconds)}</p>
+                <p className="text-[10px] font-bold text-[#9f927d]">阅读时长</p>
+              </div>
+              <div className="rounded-[18px] bg-white px-2 py-2">
+                <p className="text-lg font-black text-bark">{stats.readSentenceCount}/{stats.totalSentenceCount}</p>
+                <p className="text-[10px] font-bold text-[#9f927d]">已读句数</p>
+              </div>
+              <div className="rounded-[18px] bg-white px-2 py-2">
+                <p className="text-lg font-black text-bark">{formatTime(stats.estimatedRemainingSeconds)}</p>
+                <p className="text-[10px] font-bold text-[#9f927d]">预估剩余</p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-3">
           <Button block disabled={!canRead || currentIndex === 0} icon={<ChevronLeft size={18} />} onClick={prevChunk}>

@@ -3,6 +3,7 @@
 import { Cursor, Footer } from 'animal-island-ui';
 import { useAutoPlay } from '@/hooks/useAutoPlay';
 import { useHydrateConfigStore } from '@/hooks/useHydrateConfigStore';
+import { useHydrateReadingStore } from '@/hooks/useHydrateReadingStore';
 import { useKeyboardNavigation } from '@/hooks/useKeyboardNavigation';
 import { ControlPanel } from '@/components/ControlPanel/ControlPanel';
 import { ReaderBoard } from '@/components/ReaderBoard/ReaderBoard';
@@ -11,6 +12,7 @@ import { useReadingStore } from '@/store/reading-store';
 
 export function RayReadApp() {
   useHydrateConfigStore();
+  useHydrateReadingStore();
   useAutoPlay();
   useKeyboardNavigation();
   const enableFocus = useConfigStore((state) => state.enableFocus);
