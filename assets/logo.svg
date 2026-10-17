@@ -1,0 +1,7 @@
+<svg viewBox="0 0 512 512" width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <title>book</title>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#D97706"/><stop offset="100%" stop-color="#78350F"/></linearGradient><filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="10" flood-color="#000000" flood-opacity="0.35"/></filter></defs>
+  <g filter="url(#sh)"><rect x="51" y="51" width="410" height="410" rx="94" fill="url(#bg)"/></g>
+  <rect x="51" y="51" width="410" height="410" rx="94" fill="none" stroke="#FFFFFF" stroke-opacity="0.14" stroke-width="2.5"/><rect x="56" y="56" width="400" height="400" rx="89" fill="none" stroke="#FFFFFF" stroke-opacity="0.07" stroke-width="2"/>
+  <g transform="translate(141,146) scale(2.24)"><rect x="20" y="18" width="60" height="64" rx="10" fill="#FFFFFF"/><rect x="34" y="30" width="32" height="6" rx="3" fill="#FEF3C7"/><rect x="34" y="44" width="32" height="6" rx="3" fill="#FEF3C7"/><rect x="34" y="58" width="20" height="6" rx="3" fill="#FEF3C7"/></g>
+</svg>
